@@ -1,26 +1,22 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Inter } from "next/font/google";
+import Link from "next/link";
+import Navbar from "./Navbar";
+import React from "react";
+import { AuthProvider } from "./AuthContext";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "MediCare - Your Trusted Medicine Store",
-  description: "Buy medicines online with confidence. Fast delivery and genuine products.",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <div className="min-h-screen bg-gray-50">
-          {children}
-        </div>
+      <body style={{ margin: 0, padding: 0, fontFamily: 'Inter, sans-serif', background: '#f7f9fa' }}>
+        <AuthProvider>
+          <Navbar />
+          <main style={{ minHeight: '80vh', maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: 12, boxShadow: '0 2px 16px #0001', padding: 32 }}>
+            {children}
+          </main>
+          <footer style={{ textAlign: 'center', color: '#888', padding: 24, fontSize: 14 }}>
+            &copy; {new Date().getFullYear()} MediStore. All rights reserved.
+          </footer>
+        </AuthProvider>
       </body>
     </html>
   );
-}
+} 

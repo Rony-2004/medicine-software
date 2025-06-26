@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
+    "aceternity-ui": "^0.2.2",
     "clsx": "^2.1.1",
+    "cn": "^0.1.1",
+    "framer-motion": "^12.19.1",
     "lucide-react": "^0.523.0",
     "next": "15.3.4",
     "react": "^19.0.0",

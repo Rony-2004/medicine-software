@@ -1,225 +1,81 @@
 "use client";
-
-import { useState } from "react";
-import { Heart, ShoppingCart, User, Shield, Truck, Clock, Star } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
 export default function Home() {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isUserLogin, setIsUserLogin] = useState(true);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically handle authentication
-    if (isUserLogin) {
-      window.location.href = "/user/dashboard";
-    } else {
-      window.location.href = "/admin/dashboard";
-    }
-  };
-
-  const features = [
-    {
-      icon: <Shield className="w-8 h-8 text-blue-600" />,
-      title: "Genuine Products",
-      description: "100% authentic medicines from trusted manufacturers",
-    },
-    {
-      icon: <Truck className="w-8 h-8 text-green-600" />,
-      title: "Fast Delivery",
-      description: "Same day delivery in your city",
-    },
-    {
-      icon: <Clock className="w-8 h-8 text-purple-600" />,
-      title: "24/7 Support",
-      description: "Round the clock customer support",
-    },
-    {
-      icon: <Star className="w-8 h-8 text-yellow-600" />,
-      title: "Best Prices",
-      description: "Competitive prices with regular discounts",
-    },
-  ];
-
   return (
-    <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Heart className="w-8 h-8 text-red-500" />
-              <span className="text-2xl font-bold text-gray-900">MediCare</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setIsLoginOpen(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Login
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <div className="gradient-bg text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold mb-6">
-              Your Health, Our Priority
-            </h1>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Buy genuine medicines online with fast delivery and expert consultation. 
-              Your trusted partner for all your healthcare needs.
-            </p>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => {
-                  setIsUserLogin(true);
-                  setIsLoginOpen(true);
-                }}
-                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center space-x-2"
-              >
-                <User className="w-5 h-5" />
-                <span>Shop as User</span>
-              </button>
-              <button
-                onClick={() => {
-                  setIsUserLogin(false);
-                  setIsLoginOpen(true);
-                }}
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors flex items-center space-x-2"
-              >
-                <Shield className="w-5 h-5" />
-                <span>Admin Access</span>
-              </button>
-            </div>
-          </div>
-        </div>
+    <div style={{
+      minHeight: '70vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+      background: 'linear-gradient(120deg, #e3f0ff 0%, #f5faff 100%)',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: 600,
+        background: '#fff',
+        borderRadius: 16,
+        boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.10)',
+        padding: 32,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 24,
+      }}>
+        <h1 style={{
+          fontSize: 40,
+          fontWeight: 800,
+          color: '#1976d2',
+          margin: 0,
+          textAlign: 'center',
+          letterSpacing: 1,
+        }}>
+          Welcome to MediStore
+        </h1>
+        <p style={{
+          fontSize: 20,
+          color: '#333',
+          textAlign: 'center',
+          margin: 0,
+        }}>
+          Your trusted online pharmacy for genuine medicines. Fast delivery, best prices, and a wide range of healthcare products. Shop with confidence!
+        </p>
+        <input
+          type="text"
+          placeholder="Search for medicines, brands, or health products..."
+          style={{
+            width: '100%',
+            padding: '14px 18px',
+            borderRadius: 8,
+            border: '1.5px solid #b3c6e0',
+            fontSize: 18,
+            marginBottom: 8,
+            outline: 'none',
+            boxSizing: 'border-box',
+          }}
+        />
+        <Link href="/shop" style={{
+          background: 'linear-gradient(90deg, #1976d2 0%, #43cea2 100%)',
+          color: '#fff',
+          padding: '16px 48px',
+          borderRadius: 8,
+          fontSize: 22,
+          fontWeight: 700,
+          textDecoration: 'none',
+          boxShadow: '0 2px 8px #1976d244',
+          marginTop: 8,
+          letterSpacing: 1,
+          textAlign: 'center',
+        }}>
+          Shop Medicines
+        </Link>
       </div>
-
-      {/* Features Section */}
-      <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Why Choose MediCare?
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              We provide the best healthcare experience with quality products and excellent service.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex justify-center mb-4">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div style={{marginTop: 48, color: '#888', fontSize: 16, textAlign: 'center'}}>
+        &copy; {new Date().getFullYear()} MediStore. All rights reserved.
       </div>
-
-      {/* Login Modal */}
-      {isLoginOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {isUserLogin ? "User Login" : "Admin Login"}
-              </h2>
-              <button
-                onClick={() => setIsLoginOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="flex mb-6">
-              <button
-                onClick={() => setIsUserLogin(true)}
-                className={`flex-1 py-2 px-4 rounded-l-lg font-medium ${
-                  isUserLogin
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                User
-              </button>
-              <button
-                onClick={() => setIsUserLogin(false)}
-                className={`flex-1 py-2 px-4 rounded-r-lg font-medium ${
-                  !isUserLogin
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                Admin
-              </button>
-            </div>
-
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter your email"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter your password"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                {isUserLogin ? "Login as User" : "Login as Admin"}
-              </button>
-            </form>
-
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
-                Demo Credentials:
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                User: user@example.com / password123
-              </p>
-              <p className="text-xs text-gray-500">
-                Admin: admin@example.com / admin123
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-}
+} 
