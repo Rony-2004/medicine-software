@@ -20,7 +20,7 @@ export interface UserTable {
   password: string;
   first_name: string;
   last_name: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'owner';
   phone?: string;
   address?: string;
   created_at: Date;

@@ -32,12 +32,12 @@ var { g: global, __dirname } = __turbopack_context__;
 __turbopack_context__.s({
     "default": (()=>__TURBOPACK__default__export__)
 });
-const config = {
-    plugins: [
-        "@tailwindcss/postcss"
-    ]
+const __TURBOPACK__default__export__ = {
+    plugins: {
+        '@tailwindcss/postcss': {},
+        autoprefixer: {}
+    }
 };
-const __TURBOPACK__default__export__ = config;
 }}),
 "[project]/postcss.config.mjs/transform.ts { CONFIG => \"[project]/postcss.config.mjs [postcss] (ecmascript)\" } [postcss] (ecmascript)": ((__turbopack_context__) => {
 "use strict";

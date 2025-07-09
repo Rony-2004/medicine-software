@@ -8,7 +8,7 @@ import { testConnection, closeConnection } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
-import productRoutes from './routes/products';
+import productsRoutes from './routes/products';
 import orderRoutes from './routes/orders';
 import adminRoutes from './routes/admin';
 
@@ -47,7 +47,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api/products', productsRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 

@@ -1,3 +1,4 @@
+import './globals.css';
 import Link from "next/link";
 import Navbar from "./Navbar";
 import React from "react";
@@ -6,13 +7,13 @@ import { AuthProvider } from "./AuthContext";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, padding: 0, fontFamily: 'Inter, sans-serif', background: '#f7f9fa' }}>
+      <body className="bg-gradient-to-br from-cyan-50 to-gray-100 min-h-screen">
         <AuthProvider>
           <Navbar />
-          <main style={{ minHeight: '80vh', maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: 12, boxShadow: '0 2px 16px #0001', padding: 32 }}>
+          <main className="min-h-[80vh] max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 my-8">
             {children}
           </main>
-          <footer style={{ textAlign: 'center', color: '#888', padding: 24, fontSize: 14 }}>
+          <footer className="text-center text-gray-500 py-6 text-sm">
             &copy; {new Date().getFullYear()} MediStore. All rights reserved.
           </footer>
         </AuthProvider>
