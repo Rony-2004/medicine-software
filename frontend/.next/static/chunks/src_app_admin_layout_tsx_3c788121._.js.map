@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///D:/project2/medicine-software/frontend/src/app/admin/layout.tsx"],"sourcesContent":["\"use client\";\r\nimport React from \"react\";\r\n\r\nexport default function AdminLayout({ children }: { children: React.ReactNode }) {\r\n  return <>{children}</>;\r\n}\r\n\r\n// In next.config or app structure, make sure this layout is used for all /admin routes. "],"names":[],"mappings":";;;;AAAA;;AAGe,SAAS,YAAY,EAAE,QAAQ,EAAiC;IAC7E,qBAAO;kBAAG;;AACZ,EAEA,yFAAyF;KAJjE","debugId":null}}]
-}
