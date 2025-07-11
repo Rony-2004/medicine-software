@@ -1,6 +1,4 @@
 import './globals.css';
-import Link from "next/link";
-import Navbar from "./Navbar";
 import React from "react";
 import { AuthProvider } from "./AuthContext";
 
@@ -9,7 +7,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-gradient-to-br from-cyan-50 to-gray-100 min-h-screen">
         <AuthProvider>
-          <Navbar />
           <main className="min-h-[80vh] max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 my-8">
             {children}
           </main>

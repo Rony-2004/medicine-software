@@ -10,13 +10,25 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "admin@example.com" && password === "admin123") {
-      login("admin");
-      router.push("/admin/dashboard");
-    } else {
-      setError("Invalid credentials. Try admin@example.com / admin123");
+    setError("");
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
+      const res = await fetch(`${API_BASE}/api/auth/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        login("admin", data.token);
+        router.push("/admin/dashboard");
+      } else {
+        setError(data.message || "Invalid credentials");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
     }
   };
 
@@ -28,7 +40,7 @@ export default function AdminLogin() {
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required style={inputStyle} />
         {error && <div style={{ color: '#f44336', fontWeight: 600, textAlign: 'center' }}>{error}</div>}
         <button type="submit" style={{ background: 'linear-gradient(90deg, #1976d2 0%, #43cea2 100%)', color: '#fff', fontWeight: 700, fontSize: 18, border: 'none', borderRadius: 8, padding: '12px 0', cursor: 'pointer', boxShadow: '0 2px 8px #1976d244', letterSpacing: 1 }}>Login</button>
-        <div style={{ color: '#888', fontSize: 14, textAlign: 'center', marginTop: 8 }}>Demo: admin@example.com / admin123</div>
+        <div style={{ color: '#888', fontSize: 14, textAlign: 'center', marginTop: 8 }}>Use admin@gmail.com / admin1234</div>
       </form>
     </div>
   );

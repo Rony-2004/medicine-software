@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 type AuthType = "user" | "admin" | null;
 interface AuthContextType {
   auth: AuthType;
-  login: (type: AuthType) => void;
+  login: (type: AuthType, token?: string) => void;
   logout: () => void;
 }
 
@@ -22,10 +22,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (stored === "user" || stored === "admin") setAuth(stored);
   }, []);
 
-  const login = (type: AuthType) => {
+  const login = (type: AuthType, token?: string) => {
     setAuth(type);
     if (type) localStorage.setItem("authType", type);
     else localStorage.removeItem("authType");
+    if (token) localStorage.setItem("token", token);
   };
   const logout = () => {
     setAuth(null);

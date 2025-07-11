@@ -25,9 +25,9 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
   }
 }
 
-export function requireOwner(req: AuthRequest, res: Response, next: NextFunction) {
-  if (!req.user || req.user.role !== 'owner') {
-    return res.status(403).json({ success: false, message: 'Owner access required' });
+export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Admin access required' });
   }
   return next();
 }

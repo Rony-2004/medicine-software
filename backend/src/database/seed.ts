@@ -21,22 +21,22 @@ async function seed() {
   try {
     console.log('🌱 Starting database seeding...');
 
-    // Hash password for owner user
-    const ownerPassword = await bcrypt.hash('ownerfirst', 12);
-    // Create owner user
+    // Hash password for admin user
+    const adminPassword = await bcrypt.hash('admin1234', 12);
+    // Create admin user
     await db
       .insertInto('users')
       .values({
-        email: 'owner@medicine.com',
-        password: ownerPassword,
-        first_name: 'Owner',
+        email: 'admin@gmail.com',
+        password: adminPassword,
+        first_name: 'Admin',
         last_name: 'User',
-        role: 'owner',
+        role: 'admin',
         phone: '+1234567890',
-        address: '123 Owner Street, City, Country'
+        address: '123 Admin Street, City, Country'
       } as any)
       .executeTakeFirst();
-    console.log('✅ Owner user created: owner@medicine.com / ownerfirst');
+    console.log('✅ Admin user created: admin@gmail.com / admin1234');
 
     // Hash password for regular user
     const userPassword = await bcrypt.hash('user123', 12);
