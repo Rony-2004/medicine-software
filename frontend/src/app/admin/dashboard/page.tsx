@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [allMedicineNames, setAllMedicineNames] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Add Medicine state
   const [name, setName] = useState("");
@@ -61,6 +62,38 @@ export default function AdminDashboard() {
   const [orderMedicineId, setOrderMedicineId] = useState("");
   const [orderQuantity, setOrderQuantity] = useState(1);
   const [orderError, setOrderError] = useState("");
+
+  // --- Fetch Medicines Logic ---
+  const fetchMedicines = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
+      const response = await fetch(`${API_BASE}/api/products`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMedicines(data.products || []);
+        setAllMedicineNames(data.products?.map((m: Medicine) => m.name) || []);
+      } else {
+        console.error('Failed to fetch medicines');
+      }
+    } catch (error) {
+      console.error('Error fetching medicines:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch medicines on component mount and when switching to view section
+  React.useEffect(() => {
+    if (section === "view") {
+      fetchMedicines();
+    }
+  }, [section]);
 
   // --- Add Medicine Logic ---
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +150,6 @@ export default function AdminDashboard() {
         },
       });
       if (response.ok) {
-        setAllMedicineNames((prev: string[]) => [...prev, name]);
         setName("");
         setCategory(CATEGORIES[0]);
         setPrice("");
@@ -126,6 +158,10 @@ export default function AdminDashboard() {
         setHighlights([""]);
         setImagePreviews([]);
         alert('Medicine added successfully!');
+        // Refresh medicines list if we're on the view section
+        if (section === "view") {
+          fetchMedicines();
+        }
       } else {
         const data = await response.json();
         alert(data.message || 'Failed to add medicine');
@@ -451,24 +487,30 @@ export default function AdminDashboard() {
               </div>
               <div className="text-gray-500 text-base mb-6 ml-6">Browse, edit, or remove medicines from your inventory.</div>
               <div className="overflow-x-auto w-full bg-white rounded-2xl shadow-lg border border-blue-100 p-4">
-                <table className="w-full text-base">
-                  <thead>
-                    <tr className="bg-blue-100">
-                      <th className="py-2 px-4">Images</th>
-                      <th className="py-2 px-4">Name</th>
-                      <th className="py-2 px-4">Category</th>
-                      <th className="py-2 px-4">Price</th>
-                      <th className="py-2 px-4">Stock</th>
-                      <th className="py-2 px-4">Highlights</th>
-                      <th className="py-2 px-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {medicines.length === 0 && (
-                      <tr>
-                        <td colSpan={7} className="text-center py-8 text-gray-400 text-lg">No medicines added yet.</td>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <p className="mt-2 text-gray-500">Loading medicines...</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-base">
+                    <thead>
+                      <tr className="bg-blue-100">
+                        <th className="py-2 px-4">Images</th>
+                        <th className="py-2 px-4">Name</th>
+                        <th className="py-2 px-4">Category</th>
+                        <th className="py-2 px-4">Price</th>
+                        <th className="py-2 px-4">Stock</th>
+                        <th className="py-2 px-4">Description</th>
+                        <th className="py-2 px-4">Actions</th>
                       </tr>
-                    )}
+                    </thead>
+                    <tbody>
+                      {medicines.length === 0 && (
+                        <tr>
+                          <td colSpan={7} className="text-center py-8 text-gray-400 text-lg">No medicines added yet.</td>
+                        </tr>
+                      )}
                     {medicines.map((med, idx) => (
                       <tr key={med.id} className={"border-t transition " + (idx % 2 === 0 ? "bg-blue-50/40" : "bg-white") + " hover:bg-blue-100/60"}>
                         <td className="py-2 px-4">
@@ -483,9 +525,9 @@ export default function AdminDashboard() {
                         <td className="py-2 px-4">₹{med.price}</td>
                         <td className="py-2 px-4">{med.stock}</td>
                         <td className="py-2 px-4">
-                          <ul className="list-disc ml-4 text-sm text-gray-700">
-                            {med.highlights.map((h, i) => <li key={i}>{h}</li>)}
-                          </ul>
+                          <div className="max-w-xs truncate" title={med.description}>
+                            {med.description}
+                          </div>
                         </td>
                         <td className="py-2 px-4">
                           <div className="flex gap-2">
@@ -503,6 +545,7 @@ export default function AdminDashboard() {
                     ))}
                   </tbody>
                 </table>
+                )}
               </div>
             </div>
           )}
@@ -597,144 +640,165 @@ export default function AdminDashboard() {
       </div>
       {/* Edit Medicine Modal */}
       {editModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg animate-fade-in">
-            <h2 className="text-2xl font-bold mb-4">Edit Medicine</h2>
-            <form onSubmit={handleEditSave} className="space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block font-semibold mb-1" htmlFor="edit-name">Medicine Name</label>
-                  <input
-                    id="edit-name"
-                    name="name"
-                    className="w-full border rounded px-3 py-2"
-                    value={editForm.name || ''}
-                    onChange={handleEditFormChange}
-                    required
-                  />
-                </div>
-                <div className="w-48">
-                  <label className="block font-semibold mb-1" htmlFor="edit-category">Category</label>
-                  <select
-                    id="edit-category"
-                    name="category"
-                    className="w-full border rounded px-3 py-2"
-                    value={editForm.category || CATEGORIES[0]}
-                    onChange={handleEditFormChange}
-                  >
-                    {CATEGORIES.map(cat => <option key={cat}>{cat}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block font-semibold mb-1" htmlFor="edit-price">Price</label>
-                  <input
-                    id="edit-price"
-                    name="price"
-                    type="number"
-                    min="0"
-                    className="w-full border rounded px-3 py-2"
-                    value={editForm.price || ''}
-                    onChange={handleEditFormChange}
-                    required
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block font-semibold mb-1" htmlFor="edit-stock">Stock Quantity</label>
-                  <input
-                    id="edit-stock"
-                    name="stock"
-                    type="number"
-                    min="0"
-                    className="w-full border rounded px-3 py-2"
-                    value={editForm.stock || ''}
-                    onChange={handleEditFormChange}
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block font-semibold mb-1" htmlFor="edit-description">Description</label>
-                <textarea
-                  id="edit-description"
-                  name="description"
-                  className="w-full border rounded px-3 py-2"
-                  value={editForm.description || ''}
-                  onChange={handleEditFormChange}
-                  rows={3}
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-2">Key Highlights</label>
-                <div className="space-y-2">
-                  {(editForm.highlights || []).map((h, idx) => (
-                    <div key={idx} className="flex gap-2 items-center">
-                      <input
-                        className="flex-1 border rounded px-3 py-2"
-                        value={h}
-                        onChange={e => handleEditHighlightsChange(idx, e.target.value)}
-                        placeholder={`Highlight ${idx + 1}`}
-                        required
-                      />
-                      {(editForm.highlights || []).length > 1 && (
-                        <button
-                          type="button"
-                          className="text-red-500 hover:text-red-700 text-lg font-bold px-2"
-                          onClick={() => removeEditHighlight(idx)}
-                          aria-label="Remove highlight"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className="mt-2 px-4 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
-                    onClick={addEditHighlight}
-                  >
-                    + Add Highlight
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block font-semibold mb-2">Product Images (max 3)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleEditImageChange}
-                  title="Upload product images"
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-                <div className="flex gap-4 mt-2">
-                  {(editForm.images || []).map((src, idx) => (
-                    <img
-                      key={idx}
-                      src={src}
-                      alt={`Preview ${idx + 1}`}
-                      className="w-16 h-16 object-cover rounded shadow border"
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/30">
+          <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 w-full max-w-lg min-w-[320px] max-h-[90vh] flex flex-col p-0 sm:p-0 relative animate-fade-in">
+            {/* Close Button */}
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-blue-600 text-2xl font-bold focus:outline-none z-10"
+              onClick={closeEditModal}
+              aria-label="Close"
+              type="button"
+            >
+              ×
+            </button>
+            <div
+              className="overflow-y-auto p-6 sm:p-10 flex-1"
+              style={{
+                scrollbarWidth: 'none', /* Firefox */
+                msOverflowStyle: 'none', /* IE 10+ */
+              }}
+            >
+              <style>{`
+                .hide-scrollbar::-webkit-scrollbar { display: none; }
+              `}</style>
+              <h2 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-blue-700 via-blue-500 to-green-400 bg-clip-text text-transparent drop-shadow-lg">Edit Medicine</h2>
+              <form onSubmit={handleEditSave} className="space-y-6">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <label className="block font-semibold mb-1" htmlFor="edit-name">Medicine Name</label>
+                    <input
+                      id="edit-name"
+                      name="name"
+                      className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-50 placeholder:text-blue-300 text-lg transition"
+                      value={editForm.name || ''}
+                      onChange={handleEditFormChange}
+                      required
                     />
-                  ))}
+                  </div>
+                  <div className="w-full sm:w-48">
+                    <label className="block font-semibold mb-1" htmlFor="edit-category">Category</label>
+                    <select
+                      id="edit-category"
+                      name="category"
+                      className="w-full border rounded-xl px-4 py-3 bg-blue-50 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                      value={editForm.category || CATEGORIES[0]}
+                      onChange={handleEditFormChange}
+                    >
+                      {CATEGORIES.map(cat => <option key={cat}>{cat}</option>)}
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-4 mt-4">
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-500 hover:to-green-400 hover:scale-105 hover:shadow-lg focus:outline-none"
-                >
-                  Save Changes
-                </button>
-                <button
-                  type="button"
-                  className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
-                  onClick={closeEditModal}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <label className="block font-semibold mb-1" htmlFor="edit-price">Price</label>
+                    <input
+                      id="edit-price"
+                      name="price"
+                      type="number"
+                      min="0"
+                      className="w-full border rounded-xl px-4 py-3 bg-blue-50 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                      value={editForm.price || ''}
+                      onChange={handleEditFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block font-semibold mb-1" htmlFor="edit-stock">Stock Quantity</label>
+                    <input
+                      id="edit-stock"
+                      name="stock"
+                      type="number"
+                      min="0"
+                      className="w-full border rounded-xl px-4 py-3 bg-blue-50 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                      value={editForm.stock || ''}
+                      onChange={handleEditFormChange}
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1" htmlFor="edit-description">Description</label>
+                  <textarea
+                    id="edit-description"
+                    name="description"
+                    className="w-full border rounded-xl px-4 py-3 bg-blue-50 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                    value={editForm.description || ''}
+                    onChange={handleEditFormChange}
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-2">Key Highlights</label>
+                  <div className="space-y-2">
+                    {(editForm.highlights || []).map((h, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <input
+                          className="flex-1 border rounded-xl px-4 py-3 bg-blue-50 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                          value={h}
+                          onChange={e => handleEditHighlightsChange(idx, e.target.value)}
+                          placeholder={`Highlight ${idx + 1}`}
+                          required
+                        />
+                        {(editForm.highlights || []).length > 1 && (
+                          <button
+                            type="button"
+                            className="text-red-500 hover:text-red-700 text-lg font-bold px-2"
+                            onClick={() => removeEditHighlight(idx)}
+                            aria-label="Remove highlight"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      className="mt-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-semibold hover:bg-blue-200 transition shadow"
+                      onClick={addEditHighlight}
+                    >
+                      + Add Highlight
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-semibold mb-2">Product Images (max 3)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleEditImageChange}
+                    title="Upload product images"
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  <div className="flex gap-4 mt-2">
+                    {(editForm.images || []).map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-16 h-16 object-cover rounded shadow border"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div className="border-t border-blue-100 px-6 sm:px-10 py-4 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end bg-white rounded-b-2xl">
+              <button
+                type="button"
+                className="px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl text-lg hover:bg-gray-300 transition focus:outline-none"
+                onClick={closeEditModal}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="edit-medicine-form"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-green-400 text-white font-bold rounded-xl shadow-lg text-lg hover:from-blue-700 hover:to-green-500 transition focus:outline-none"
+              >
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
       )}

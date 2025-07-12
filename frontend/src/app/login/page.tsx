@@ -1,24 +1,32 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../AuthContext";
 
 export default function UserLogin() {
-  const { login } = useAuth();
+  const { auth, login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (auth) {
+      router.replace("/");
+    }
+  }, [auth, router]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email === "user@example.com" && password === "user123") {
       login("user");
-      router.push("/shop");
+      router.push("/");
     } else {
       setError("Invalid credentials. Try user@example.com / user123");
     }
   };
+
+  if (auth) return null;
 
   return (
     <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

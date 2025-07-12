@@ -65,11 +65,40 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req: 
 // Get all products
 router.get('/', async (req, res) => {
   try {
+    const products = await db
+      .selectFrom('products')
+      .innerJoin('categories', 'products.category_id', 'categories.id')
+      .select([
+        'products.id',
+        'products.name',
+        'products.description',
+        'products.price',
+        'products.stock_quantity',
+        'products.image_url',
+        'products.is_active',
+        'products.created_at',
+        'categories.name as category_name'
+      ])
+      .where('products.is_active', '=', true)
+      .orderBy('products.created_at', 'desc')
+      .execute();
+
     res.status(200).json({
       success: true,
-      message: 'Products retrieved successfully'
+      products: products.map(product => ({
+        id: product.id,
+        name: product.name,
+        category: product.category_name,
+        price: parseFloat(product.price.toString()),
+        stock: product.stock_quantity,
+        description: product.description,
+        image_url: product.image_url,
+        highlights: [], // We'll add this later if needed
+        images: product.image_url ? [product.image_url] : []
+      }))
     });
   } catch (error) {
+    console.error('Get Products Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error'
