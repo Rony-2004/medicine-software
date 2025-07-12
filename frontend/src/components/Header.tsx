@@ -3,6 +3,8 @@
 import { ShoppingCart, User, Upload, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useState, useRef } from 'react';
+import { useAuth } from '@/app/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   searchQuery: string;
@@ -14,6 +16,14 @@ export default function Header({ searchQuery, setSearchQuery, onCartOpen }: Head
   const { totalItems } = useCart();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLButtonElement>(null);
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    setProfileOpen(false);
+    router.replace('/login');
+  };
 
   return (
     <header className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200 z-40">
@@ -54,7 +64,7 @@ export default function Header({ searchQuery, setSearchQuery, onCartOpen }: Head
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
               <div className="px-4 py-2 text-gray-700 font-medium">User Profile</div>
               <div className="px-4 py-2 text-gray-500 text-sm cursor-pointer hover:bg-gray-50">My Orders</div>
-              <div className="px-4 py-2 text-gray-500 text-sm cursor-pointer hover:bg-gray-50">Logout</div>
+              <div className="px-4 py-2 text-gray-500 text-sm cursor-pointer hover:bg-gray-50" onClick={handleLogout}>Logout</div>
             </div>
           )}
         </div>
