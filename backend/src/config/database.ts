@@ -5,6 +5,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Database schema types
+export interface AddressTable {
+  id: string;
+  user_id: string;
+  address: string;
+  is_default: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface Database {
   users: UserTable;
   products: ProductTable;
@@ -12,6 +21,7 @@ export interface Database {
   order_items: OrderItemTable;
   categories: CategoryTable;
   cart_items: CartItemTable;
+  addresses: AddressTable;
 }
 
 export interface UserTable {

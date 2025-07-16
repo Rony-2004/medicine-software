@@ -1,5 +1,8 @@
 "use client";
 import React from "react";
+import { useAuth } from "../AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Status icons
 const statusIcons: Record<string, JSX.Element> = {
@@ -20,38 +23,40 @@ const statusColors: Record<string, string> = {
   Delivered: '#43cea2',
 };
 
-const mockOrders = [
-  {
-    id: 'ORD123456',
-    date: '2024-06-01',
-    status: 'Processing',
-    items: [
-      { name: 'Paracetamol 500mg', qty: 2 },
-      { name: 'Vitamin C 1000mg', qty: 1 },
-    ],
-    total: 178,
-  },
-  {
-    id: 'ORD123457',
-    date: '2024-05-28',
-    status: 'Shipped',
-    items: [
-      { name: 'Amoxicillin 250mg', qty: 1 },
-    ],
-    total: 120,
-  },
-  {
-    id: 'ORD123458',
-    date: '2024-05-20',
-    status: 'Delivered',
-    items: [
-      { name: 'Cetirizine 10mg', qty: 3 },
-    ],
-    total: 105,
-  },
-];
-
 export default function OrdersPage() {
+  const { user, token, auth } = useAuth();
+  const router = useRouter();
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!auth || !token) {
+      router.replace('/login');
+      return;
+    }
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
+        const res = await fetch(`${API_BASE}/api/orders`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setOrders(data.orders || []);
+        } else {
+          setError(data.message || "Failed to load orders");
+        }
+      } catch {
+        setError("Network error. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [auth, token, router]);
+
   return (
     <div style={{
       maxWidth: 900,
@@ -71,13 +76,21 @@ export default function OrdersPage() {
       <h2 style={{ fontSize: 32, fontWeight: 800, color: '#1976d2', marginBottom: 32, textAlign: 'center', letterSpacing: 1 }}>
         Your Orders
       </h2>
-      {mockOrders.length === 0 ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', color: '#888', fontSize: 20, margin: 48 }}>
+          Loading your orders...
+        </div>
+      ) : error ? (
+        <div style={{ textAlign: 'center', color: '#f44336', fontSize: 20, margin: 48 }}>
+          {error}
+        </div>
+      ) : orders.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#888', fontSize: 20, margin: 48 }}>
           You have no orders yet.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-          {mockOrders.map((order, idx) => (
+          {orders.map((order, idx) => (
             <div key={order.id} style={{
               background: 'linear-gradient(90deg, #e3f0ff 0%, #f5faff 100%)',
               borderRadius: 14,

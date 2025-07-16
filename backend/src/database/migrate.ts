@@ -100,6 +100,18 @@ async function migrate() {
       .addColumn('updated_at', 'timestamp', (col) => col.notNull().defaultTo(sql`now()`))
       .execute();
 
+    // Create addresses table
+    await db.schema
+      .createTable('addresses')
+      .ifNotExists()
+      .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`gen_random_uuid()`))
+      .addColumn('user_id', 'uuid', (col) => col.notNull().references('users.id'))
+      .addColumn('address', 'text', (col) => col.notNull())
+      .addColumn('is_default', 'boolean', (col) => col.notNull().defaultTo(false))
+      .addColumn('created_at', 'timestamp', (col) => col.notNull().defaultTo(sql`now()`))
+      .addColumn('updated_at', 'timestamp', (col) => col.notNull().defaultTo(sql`now()`))
+      .execute();
+
     console.log('✅ Database migration completed successfully!');
   } catch (error) {
     console.error('❌ Migration failed:', error);

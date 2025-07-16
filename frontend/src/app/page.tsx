@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthContext';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
@@ -8,21 +7,21 @@ import FeaturedMedicines from '@/components/FeaturedMedicines';
 import MedicineGrid from '@/components/MedicineGrid';
 import Cart from '@/components/Cart';
 import { CartProvider } from '@/context/CartContext';
+import LoginRegisterModal from '@/components/LoginRegisterModal';
 
 export default function Home() {
   const { auth } = useAuth();
-  const router = useRouter();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
-    if (!auth) {
-      router.replace('/login');
-    }
-  }, [auth, router]);
+    if (!auth) setShowLoginModal(true);
+    else setShowLoginModal(false);
+  }, [auth]);
 
-  if (!auth) return null;
+  const handleLoginClick = () => setShowLoginModal(true);
 
   return (
     <CartProvider>
@@ -31,6 +30,7 @@ export default function Home() {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onCartOpen={() => setIsCartOpen(true)}
+          onLoginClick={handleLoginClick}
         />
         <div className="flex flex-1 w-full h-[calc(100vh-4rem)]">
           <Sidebar 
@@ -49,6 +49,7 @@ export default function Home() {
           isOpen={isCartOpen}
           onClose={() => setIsCartOpen(false)}
         />
+        <LoginRegisterModal open={showLoginModal} onClose={() => setShowLoginModal(false)} closable={true} />
       </div>
     </CartProvider>
   );

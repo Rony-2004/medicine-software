@@ -10,19 +10,20 @@ interface HeaderProps {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   onCartOpen: () => void;
+  onLoginClick?: () => void;
 }
 
-export default function Header({ searchQuery, setSearchQuery, onCartOpen }: HeaderProps) {
+export default function Header({ searchQuery, setSearchQuery, onCartOpen, onLoginClick }: HeaderProps) {
   const { totalItems } = useCart();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLButtonElement>(null);
-  const { logout } = useAuth();
+  const { auth, user, logout } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
-    router.replace('/login');
+    // No redirect
   };
 
   return (
@@ -62,9 +63,21 @@ export default function Header({ searchQuery, setSearchQuery, onCartOpen }: Head
           </button>
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-              <div className="px-4 py-2 text-gray-700 font-medium">User Profile</div>
-              <div className="px-4 py-2 text-gray-500 text-sm cursor-pointer hover:bg-gray-50">My Orders</div>
-              <div className="px-4 py-2 text-gray-500 text-sm cursor-pointer hover:bg-gray-50" onClick={handleLogout}>Logout</div>
+              {auth === 'user' ? (
+                <>
+                  <div className="px-4 py-2 text-gray-700 font-medium">
+                    {user && (user.first_name || user.last_name)
+                      ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+                      : user && user.email
+                        ? user.email
+                        : 'User'}
+                  </div>
+                  <div className="px-4 py-2 text-gray-500 text-sm cursor-pointer hover:bg-gray-50" onClick={() => { router.push('/orders'); setProfileOpen(false); }}>My Orders</div>
+                  <div className="px-4 py-2 text-gray-500 text-sm cursor-pointer hover:bg-gray-50" onClick={handleLogout}>Logout</div>
+                </>
+              ) : (
+                <div className="px-4 py-2 text-blue-600 text-sm cursor-pointer hover:bg-blue-50 font-semibold" onClick={() => { setProfileOpen(false); onLoginClick && onLoginClick(); }}>Login</div>
+              )}
             </div>
           )}
         </div>

@@ -35,7 +35,9 @@ router.post('/register', async (req, res) => {
       phone,
       address
     } as any).returningAll().executeTakeFirst();
-    return res.status(201).json({ success: true, message: 'User registered', user: { ...user, password: undefined } });
+    if (!user) return res.status(500).json({ success: false, message: 'User registration failed' });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    return res.status(201).json({ success: true, message: 'User registered', token, user: { ...user, password: undefined } });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Server error' });
   }
